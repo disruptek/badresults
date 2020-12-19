@@ -1,0 +1,48 @@
+Example	badresults.html#example	 Example	
+Potential benefits:	badresults.html#potential-benefitscolon	 Potential benefits:	
+Potential costs:	badresults.html#potential-costscolon	 Potential costs:	
+Other languages	badresults.html#other-languages	 Other languages	
+Other implemenations in nim	badresults.html#other-implemenations-in-nim	 Other implemenations in nim	
+Implementation notes	badresults.html#implementation-notes	 Implementation notes	
+Result	badresults.html#Result	badresults: Result	
+ok	badresults.html#ok.t,typeResult,auto	badresults: ok(R: type Result; x: auto): auto	
+ok	badresults.html#ok.t,Result,auto	badresults: ok(self: var Result; x: auto)	
+err	badresults.html#err.t,typeResult,auto	badresults: err(R: type Result; x: auto): auto	
+err	badresults.html#err.t,Result,auto	badresults: err(self: var Result; x: auto)	
+isOk	badresults.html#isOk.t,Result	badresults: isOk(self: Result): bool	
+isErr	badresults.html#isErr.t,Result	badresults: isErr(self: Result): bool	
+map	badresults.html#map,Result[T,E],proc(T)	badresults: map[T, E, A](self: Result[T, E]; f: proc (x: T): A): Result[A, E]	
+flatMap	badresults.html#flatMap,Result[T,E],proc(T)	badresults: flatMap[T, E, A](self: Result[T, E]; f: proc (x: T): Result[A, E]): Result[A, E]	
+mapErr	badresults.html#mapErr,Result[T: not void,E],proc(E)	badresults: mapErr[T: not void; E, A](self: Result[T, E]; f: proc (x: E): A): Result[T, A]	
+mapConvert	badresults.html#mapConvert,Result[T0,E0],type	badresults: mapConvert[T0, E0](self: Result[T0, E0]; T1: type): Result[T1, E0]	
+mapCast	badresults.html#mapCast,Result[T0,E0],type	badresults: mapCast[T0, E0](self: Result[T0, E0]; T1: type): Result[T1, E0]	
+`and`	badresults.html#and.t,Result,untyped	badresults: `and`(self: Result; other: untyped): untyped	
+`or`	badresults.html#or.t,Result,untyped	badresults: `or`(self: Result; other: untyped): untyped	
+catch	badresults.html#catch.t,typed	badresults: catch(body: typed): Result[typeof(body), ref Exception]	
+capture	badresults.html#capture.t,type,ref.Exception	badresults: capture(T: type; e: ref Exception): Result[T, ref Exception]	
+get	badresults.html#get,Result[T: not void,E]	badresults: get[T: not void; E](self: Result[T, E]): T	
+get	badresults.html#get,Result[T,E],T	badresults: get[T, E](self: Result[T, E]; otherwise: T): T	
+get	badresults.html#get,Result[T,E]	badresults: get[T, E](self: var Result[T, E]): var T	
+`[]`	badresults.html#[].t,Result[T,E]	badresults: `[]`[T; E](self: Result[T, E]): T	
+`[]`	badresults.html#[].t,Result[T,E]_2	badresults: `[]`[T; E](self: var Result[T, E]): var T	
+unsafeGet	badresults.html#unsafeGet.t,Result[T,E]	badresults: unsafeGet[T; E](self: Result[T, E]): T	
+`$`	badresults.html#$,Result	badresults: `$`(self: Result): string	
+error	badresults.html#error,Result[T,E]	badresults: error[T, E](self: Result[T, E]): E	
+value	badresults.html#value.t,Result[T,E]	badresults: value[T; E](self: Result[T, E]): T	
+value	badresults.html#value.t,Result[T,E]_2	badresults: value[T; E](self: var Result[T, E]): T	
+valueOr	badresults.html#valueOr.t,Result[T,E],T	badresults: valueOr[T; E](self: Result[T, E]; def: T): T	
+ok	badresults.html#ok.t,typeResult[void,E]	badresults: ok[E; ](R: type Result[void, E]): auto	
+ok	badresults.html#ok.t,Result[void,E]	badresults: ok[E](self: var Result[void, E])	
+map	badresults.html#map,Result[void,E],proc)	badresults: map[E, A](self: Result[void, E]; f: proc (): A): Result[A, E]	
+flatMap	badresults.html#flatMap,Result[void,E],proc)	badresults: flatMap[E, A](self: Result[void, E]; f: proc (): Result[A, E]): Result[A, E]	
+mapErr	badresults.html#mapErr,Result[void,E],proc(E)	badresults: mapErr[E, A](self: Result[void, E]; f: proc (x: E): A): Result[void, A]	
+map	badresults.html#map,Result[T,E],proc(T)_2	badresults: map[T, E](self: Result[T, E]; f: proc (x: T)): Result[void, E]	
+get	badresults.html#get,Result[void,E]	badresults: get[E](self: Result[void, E])	
+`[]`	badresults.html#[].t,Result[void,E]	badresults: `[]`[E](self: Result[void, E])	
+unsafeGet	badresults.html#unsafeGet.t,Result[void,E]	badresults: unsafeGet[E](self: Result[void, E])	
+`$`	badresults.html#$,Result[void,E]	badresults: `$`[E](self: Result[void, E]): string	
+value	badresults.html#value.t,Result[void,E]	badresults: value[E](self: Result[void, E])	
+value	badresults.html#value.t,Result[void,E]_2	badresults: value[E](self: var Result[void, E])	
+`?`	badresults.html#?.t,Result[T,E]	badresults: `?`[T; E](self: Result[T, E]): T	
+`+`	badresults.html#+.t,Result,Result	badresults: `+`(self, other: Result): untyped	
+capture	badresults.html#capture.t	badresults: capture(): untyped	
