@@ -1,6 +1,6 @@
 version = "1.0.0"
 author = "disruptek"
-description = "a less fascist version of nim-result"
+description = "a less fascist fork of nim-result"
 license = "MIT"
 requires "nim >= 1.0.6"
 

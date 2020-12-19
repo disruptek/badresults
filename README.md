@@ -19,7 +19,6 @@ Result[T; E] = object
   case o: bool
   of false:
       e: E
-
   of true:
       v: T
 ```
