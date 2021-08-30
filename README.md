@@ -5,10 +5,16 @@
 [![License](https://img.shields.io/github/license/disruptek/badresults?style=flat)](#license)
 [![buy me a coffee](https://img.shields.io/badge/donate-buy%20me%20a%20coffee-orange.svg)](https://www.buymeacoffee.com/disruptek)
 
-This is a copy of [the Status nim-result
-package](https://github.com/arnetheduck/nim-result) that differs only in that
-you do not need to provide a side-effect-free (`func`) implementation of `$`
-for all types used as results.
+This is _mostly_ a copy of [the Status nim-result
+package](https://github.com/arnetheduck/nim-result) that differs in that you
+do not need to provide a side-effect-free (`func`) implementation of `$` for
+all types used as results. Also, it makes fewer uses of templates and has a
+narrower API to make it simpler and prevent C-codegen issues experienced with
+`nim-result`.
+
+If you care more for performance and features, use `nim-result` or ask nicely
+and maybe we add a symbol or two back in.  I personally consider compilation
+a non-negotiable feature.
 
 ## Documentation
 See [the documentation for the badresults module](https://disruptek.github.io/badresults/badresults.html) as generated directly from the source.
@@ -42,26 +48,11 @@ func fails(): R =
   # or type it like this, to not repeat the type!
   result.err "bad luck"
 
-if (let w = works(); w.isOk):
-  echo w[], " or use value: ", w.value
-
-# In case you think your callers want to differentiate between errors:
-type
-  Error = enum
-    a, b, c
-  type RE[T] = Result[T, Error]
-
-# In the expriments corner, you'll find the following syntax for passing
-# errors up the stack:
-func f(): R =
-  let x = ?works() - ?fails()
-  assert false, "will never reach"
-
 # If you provide this exception converter, this exception will be raised
 # on dereference
 func toException(v: Error): ref CatchableException = (ref CatchableException)(msg: $v)
 try:
-  RE[int].err(a)[]
+  get RE[int].err(a)
 except CatchableException:
   echo "in here!"
 ```
@@ -75,7 +66,6 @@ or if you're still using Nimble like it's 2012,
 ```
 $ nimble install https://github.com/disruptek/badresults
 ```
-
 
 ## License
 MIT
