@@ -8,6 +8,11 @@ when not defined(release):
 
 task test, "run tests for ci":
   when defined(windows):
-    exec "balls.cmd"
+    # https://github.com/nim-lang/Nim/issues/16661
+    # see if this works... maybe
+    for n in ["balls.cmd", "balls.exe", "balls"]:
+      if n.findExe != "":
+        exec n.findExe
+        break
   else:
-    exec "balls"
+    exec findExe"balls"
