@@ -1,4 +1,4 @@
-version = "2.1.0"
+version = "2.1.1"
 author = "disruptek"
 description = "a simpler and less fascist fork of nim-result"
 license = "MIT"

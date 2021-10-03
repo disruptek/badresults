@@ -93,14 +93,16 @@ macro get*[T, E](self: Result[T, E]; otherwise: T): T =
     else:
       `self`.v
 
-macro get*[T, E](self: var Result[T, E]): var T =
-  ## Fetch value of result if set, or raise error as an Exception
+macro get*[T, E](self: var Result[T, E]): untyped =
+  ## Fetch mutable value of result if set, or raise error as an Exception
   ## See also: Option.get
   quote:
+    var r: typeOf(`self`.v)
     if `self`.isErr:
       raiseResultError `self`
     else:
-      `self`.v
+      r = `self`.v
+    r
 
 macro get*[E](self: Result[void, E]) =
   ## Raise error as an Exception if `self.isErr`.
