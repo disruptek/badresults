@@ -15,22 +15,26 @@ type
     of true:
       v: T
 
+func newResultError[E](e: E; s: string): ResultError[E] {.inline, nimcall.} =
+  ## capturing ResultError...
+  ResultError[E](error: e, msg: s)
+
 macro toException*[E](err: E): ResultError[E] =
   err.expectKind nnkCheckedFieldExpr
   # err is `self.e`, a checked field expr
   let e = err[0]              # unwrap checked-field to get dot expr
-  let T = getTypeImpl e[1]    # unwrap dot expr to get the error type
+  let re = bindSym"newResultError"
   quote:
     when compiles($`e`):
-      ResultError[`T`](error: `e`, msg: "Result isErr: " & $`e`)
+      `re`(`e`, "Result isErr: " & $`e`)
     else:
-      ResultError[`T`](error: `e`)
+      `re`(`e`, "Result isErr; no `$` in scope.")
 
 macro raiseResultError[T, E](self: Result[T, E]): untyped =
   quote:
     when `E` is ref Exception:
       if `self`.e.isNil: # for example Result.default()!
-        raise ResultError[void](msg: "Result isErr: (no exception)")
+        raise ResultError[void](msg: "Result isErr; no exception.")
       else:
         raise `self`.e
     else:
