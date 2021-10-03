@@ -5,13 +5,13 @@ import balls
 suite "badresults":
   type R = Result[int, string]
 
-  # Basic usage, producer
+  ## Basic usage, producer
   func works(): R = R.ok(42)
   func works2(): R = result.ok(42)
   func fails(): R = R.err("dummy")
   func fails2(): R = result.err("dummy")
 
-  # Basic usage, consumer
+  ## Basic usage, consumer
   let
     rOk = works()
     rOk2 = works2()
@@ -25,17 +25,17 @@ suite "badresults":
   check rErr.isErr
   check rErr2.isErr
 
-  # Exception on access
+  ## Exception on access
   let va = try: discard rOk.error; false except: true
   check va, "not an error, should raise"
 
-  # Exception on access
+  ## Exception on access
   let vb = try: discard rErr.value; false except: true
   check vb, "not an value, should raise"
 
   var x = rOk
 
-  # Mutate
+  ## Mutate
   x.err("failed now")
 
   check x.isErr
@@ -43,11 +43,12 @@ suite "badresults":
   check rOk.valueOr(50) == rOk.value
   check rErr.valueOr(50) == 50
 
-  # Comparisons
+  ## Comparisons
   check (works() == works2())
   check (fails() == fails2())
   check (works() != fails())
 
+  ## Custom exceptions
   type
     AnEnum = enum
       anEnumA
@@ -66,6 +67,7 @@ suite "badresults":
 
   check testToException() == 42
 
+  ## ResultError
   type
     AnEnum2 = enum
       anEnum2A
@@ -80,6 +82,7 @@ suite "badresults":
 
   check testToString() == 42
 
+  ## Void Results
   type VoidRes = Result[void, int]
 
   func worksVoid(): VoidRes = VoidRes.ok()
