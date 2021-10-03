@@ -1,6 +1,6 @@
-import badresults
+import pkg/balls
 
-import balls
+import badresults
 
 suite "badresults":
   type R = Result[int, string]
@@ -67,7 +67,7 @@ suite "badresults":
 
   check testToException() == 42
 
-  ## ResultError
+  ## Adhoc string rendering of exception
   type
     AnEnum2 = enum
       anEnum2A
@@ -81,6 +81,27 @@ suite "badresults":
       42
 
   check testToString() == 42
+
+  ## Dollar-based string rendering of an error
+  type
+    AnEnum3 = enum
+      anEnum3A
+      anEnum3B
+
+  func `$`(e: AnEnum3): string =
+    case e
+    of anEnum3A: "first"
+    of anEnum3B: "second"
+
+  proc testToString2(): int =
+    try:
+      var r = Result[int, AnEnum3].err(anEnum3B)
+      get r
+    except ResultError[AnEnum3] as e:
+      check e.msg == "Trying to access value with err: second"
+      42
+
+  check testToString2() == 42
 
   ## Void Results
   type VoidRes = Result[void, int]
