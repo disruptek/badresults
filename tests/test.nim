@@ -18,108 +18,119 @@ suite "badresults":
     rErr = fails()
     rErr2 = fails2()
 
-  check rOk.isOk
-  check rOk2.isOk
-  check rOk.get() == 42
-  check (not rOk.isErr)
-  check rErr.isErr
-  check rErr2.isErr
+  block:
+    ## Basic operations
+    check "basically broken":
+      rOk.isOk
+      rOk2.isOk
+      rOk.get() == 42
+      (not rOk.isErr)
+      rErr.isErr
+      rErr2.isErr
 
-  ## Exception on access
-  let va = try: discard rOk.error; false except: true
-  check va, "not an error, should raise"
+  block:
+    ## Exception on access (1)
+    let va = try: discard rOk.error; false except: true
+    check va, "not an error, should raise"
 
-  ## Exception on access
-  let vb = try: discard rErr.value; false except: true
-  check vb, "not an value, should raise"
+  block:
+    ## Exception on access (2)
+    let vb = try: discard rErr.value; false except: true
+    check vb, "not an value, should raise"
 
-  var x = rOk
+  block:
+    ## Mutate
+    var x = rOk
 
-  ## Mutate
-  x.err("failed now")
+    x.err("failed now")
 
-  check x.isErr
+    check x.isErr
 
-  check rOk.valueOr(50) == rOk.value
-  check rErr.valueOr(50) == 50
+    check rOk.valueOr(50) == rOk.value
+    check rErr.valueOr(50) == 50
 
-  ## Comparisons
-  check (works() == works2())
-  check (fails() == fails2())
-  check (works() != fails())
+  block:
+    ## Comparisons
+    check (works() == works2())
+    check (fails() == fails2())
+    check (works() != fails())
 
-  ## Custom exceptions
-  type
-    AnEnum = enum
-      anEnumA
-      anEnumB
-    AnException = ref object of ValueError
-      v: AnEnum
+  block:
+    ## Custom exceptions
+    type
+      AnEnum = enum
+        anEnumA
+        anEnumB
+      AnException = ref object of ValueError
+        v: AnEnum
 
-  func toException(v: AnEnum): AnException = AnException(v: v)
+    func toException(v: AnEnum): AnException = AnException(v: v)
 
-  func testToException(): int =
-    try:
-      var r = Result[int, AnEnum].err(anEnumA)
-      get r
-    except AnException:
-      42
+    func testToException(): int =
+      try:
+        var r = Result[int, AnEnum].err(anEnumA)
+        get r
+      except AnException:
+        42
 
-  check testToException() == 42
+    check testToException() == 42
 
-  ## Adhoc string rendering of exception
-  type
-    AnEnum2 = enum
-      anEnum2A
-      anEnum2B
+  block:
+    ## Adhoc string rendering of exception
+    type
+      AnEnum2 = enum
+        anEnum2A
+        anEnum2B
 
-  func testToString(): int =
-    try:
-      var r = Result[int, AnEnum2].err(anEnum2A)
-      get r
-    except ResultError[AnEnum2]:
-      42
+    func testToString(): int =
+      try:
+        var r = Result[int, AnEnum2].err(anEnum2A)
+        get r
+      except ResultError[AnEnum2]:
+        42
 
-  check testToString() == 42
+    check testToString() == 42
 
-  ## Dollar-based string rendering of an error
-  type
-    AnEnum3 = enum
-      anEnum3A
-      anEnum3B
+  block:
+    ## Dollar-based string rendering of an error
+    type
+      AnEnum3 = enum
+        anEnum3A
+        anEnum3B
 
-  func `$`(e: AnEnum3): string =
-    case e
-    of anEnum3A: "first"
-    of anEnum3B: "second"
+    func `$`(e: AnEnum3): string =
+      case e
+      of anEnum3A: "first"
+      of anEnum3B: "second"
 
-  proc testToString2(): int =
-    try:
-      var r = Result[int, AnEnum3].err(anEnum3B)
-      get r
-    except ResultError[AnEnum3] as e:
-      check e.msg == "Trying to access value with err: second"
-      42
+    proc testToString2(): int =
+      try:
+        var r = Result[int, AnEnum3].err(anEnum3B)
+        get r
+      except ResultError[AnEnum3] as e:
+        check e.msg == "Result isErr: second"
+        42
 
-  check testToString2() == 42
+    check testToString2() == 42
 
-  ## Void Results
-  type VoidRes = Result[void, int]
+  block:
+    ## Void Results
+    type VoidRes = Result[void, int]
 
-  func worksVoid(): VoidRes = VoidRes.ok()
-  func worksVoid2(): VoidRes = result.ok()
-  func failsVoid(): VoidRes = VoidRes.err(42)
-  func failsVoid2(): VoidRes = result.err(42)
+    func worksVoid(): VoidRes = VoidRes.ok()
+    func worksVoid2(): VoidRes = result.ok()
+    func failsVoid(): VoidRes = VoidRes.err(42)
+    func failsVoid2(): VoidRes = result.err(42)
 
-  let
-    vOk = worksVoid()
-    vOk2 = worksVoid2()
-    vErr = failsVoid()
-    vErr2 = failsVoid2()
+    let
+      vOk = worksVoid()
+      vOk2 = worksVoid2()
+      vErr = failsVoid()
+      vErr2 = failsVoid2()
 
-  check vOk.isOk
-  check vOk2.isOk
-  check vErr.isErr
-  check vErr2.isErr
+    check vOk.isOk
+    check vOk2.isOk
+    check vErr.isErr
+    check vErr2.isErr
 
-  vOk.get()
+    vOk.get()

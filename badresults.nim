@@ -1,8 +1,4 @@
-# Copyright (c) 2019 Jacek Sieka
-# Licensed and distributed under either of
-#   * MIT license (license terms in the root directory or at http://opensource.org/licenses/MIT).
-#   * Apache v2 license (license terms in the root directory or at http://www.apache.org/licenses/LICENSE-2.0).
-# at your option. This file may not be copied, modified, or distributed except according to those terms.
+import std/macros
 
 type
   ResultError*[E] = ref object of ValueError
@@ -19,18 +15,26 @@ type
     of true:
       v: T
 
-func raiseResultError[T, E](self: Result[T, E]) {.noreturn.} =
-  when E is ref Exception:
-    if self.e.isNil: # for example Result.default()!
-      raise ResultError[void](msg: "Trying to access value with err (nil)")
-    raise self.e
-  elif compiles(self.e.toException()):
-    raise self.e.toException()
-  elif compiles($self.e):
-    raise ResultError[E](error: self.e,
-                         msg: "Trying to access value with err: " & $self.e)
-  else:
-    raise ResultError[E](error: self.e)
+macro toException*[E](err: E): ResultError[E] =
+  err.expectKind nnkCheckedFieldExpr
+  # err is `self.e`, a checked field expr
+  let e = err[0]              # unwrap checked-field to get dot expr
+  let T = getTypeImpl e[1]    # unwrap dot expr to get the error type
+  quote:
+    when compiles($`e`):
+      ResultError[`T`](error: `e`, msg: "Result isErr: " & $`e`)
+    else:
+      ResultError[`T`](error: `e`)
+
+macro raiseResultError[T, E](self: Result[T, E]): untyped =
+  quote:
+    when `E` is ref Exception:
+      if `self`.e.isNil: # for example Result.default()!
+        raise ResultError[void](msg: "Result isErr: (no exception)")
+      else:
+        raise `self`.e
+    else:
+      raise `self`.e.toException
 
 proc ok*[E](R: typedesc[Result[void, E]]): Result[void, E] =
   ## Return a result as success.
@@ -71,35 +75,39 @@ func `==`*(a, b: Result): bool {.inline.} =
   else:
     false
 
-func get*[T: not void, E](self: Result[T, E]): T {.inline.} =
+macro get*[T: not void, E](self: Result[T, E]): T =
   ## Fetch value of result if set, or raise error as an Exception
   ## See also: Option.get
-  if self.isErr:
-    self.raiseResultError()
-  else:
-    self.v
+  quote:
+    if `self`.isErr:
+      raiseResultError `self`
+    else:
+      `self`.v
 
-func get*[T, E](self: Result[T, E], otherwise: T): T {.inline.} =
+macro get*[T, E](self: Result[T, E]; otherwise: T): T =
   ## Fetch value of result if set, or raise error as an Exception
   ## See also: Option.get
-  if self.isErr:
-    otherwise
-  else:
-    self.v
+  quote:
+    if `self`.isErr:
+      `otherwise`
+    else:
+      `self`.v
 
-func get*[T, E](self: var Result[T, E]): var T {.inline.} =
+macro get*[T, E](self: var Result[T, E]): var T =
   ## Fetch value of result if set, or raise error as an Exception
   ## See also: Option.get
-  if self.isErr:
-    self.raiseResultError()
-  else:
-    result = self.v
+  quote:
+    if `self`.isErr:
+      raiseResultError `self`
+    else:
+      `self`.v
 
-func get*[E](self: Result[void, E]) {.inline.} =
+macro get*[E](self: Result[void, E]) =
   ## Raise error as an Exception if `self.isErr`.
   ## See also: Option.get
-  if self.isErr:
-    self.raiseResultError()
+  quote:
+    if `self`.isErr:
+      raiseResultError `self`
 
 func error*[T, E](self: Result[T, E]): E =
   if self.isOk:

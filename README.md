@@ -8,9 +8,13 @@
 This is _mostly_ a copy of [the Status nim-result
 package](https://github.com/arnetheduck/nim-result) that differs in that you
 do not need to provide a side-effect-free (`func`) implementation of `$` for
-all types used as results. Also, it makes fewer uses of templates and has a
-narrower API to make it simpler and prevent C-codegen issues experienced with
-`nim-result`.
+all types used in your `Result`.
+
+Also, it makes fewer uses of templates and has a narrower API to make it
+simpler and prevent C-codegen issues experienced with `nim-result`.
+
+Also, it supports `toException` and `$` overrides for error types which are
+implemented in nested scopes.
 
 If you care more for performance and features, use `nim-result` or ask nicely
 and maybe we add a symbol or two back in.  I personally consider compilation
