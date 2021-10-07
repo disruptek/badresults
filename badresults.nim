@@ -13,7 +13,8 @@ type
     of true:
       v: T
 
-when defined(windows) and not (defined(gcArc) or defined(gcOrc)):
+# windows just can't handle .inline. on earlier nims and gc:(refc|m&s)
+when (NimMajor, NimMinor) < (1, 5) and defined(windows) and not (defined(gcArc) or defined(gcOrc)):
   proc error*[T, E](self: Result[T, E]): E =
     ## Retrieve the error from a Result; raises ResultError
     ## if the Result is not in error.
