@@ -137,7 +137,7 @@ template unsafeGet*[E](self: Result[void, E]) =
   ## See also: Option.unsafeGet
   assert not self.isErr
 
-proc `$`*[T, E](self: Result[T, E]): string =
+proc `$`*[T: not void; E](self: Result[T, E]): string =
   ## Returns string representation of `self`
   if self.isOk: "Ok(" & $self.v & ")"
   else: "Err(" & $self.e & ")"
