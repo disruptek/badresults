@@ -25,13 +25,13 @@ proc unsafeGet*[T, E](self: var Result[T, E]): var T {.inline.} =
   ## Fetch value of result if set, undefined behavior if unset
   ## See also: Option.unsafeGet
   assert not isErr(self)
-  self.v
+  result = self.v
 
 proc unsafeGet*[T, E](self: Result[T, E]): T {.inline.} =
   ## Fetch value of result if set, undefined behavior if unset
   ## See also: Option.unsafeGet
   assert not isErr(self)
-  self.v
+  result = self.v
 
 proc unsafeGet*[E](self: Result[void, E]) {.inline.} =
   ## Raise an exception if Result is an error.
