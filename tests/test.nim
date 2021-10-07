@@ -134,3 +134,40 @@ suite "badresults":
     check vErr2.isErr
 
     vOk.get()
+
+  block:
+    ## Symbol resolution
+    type
+      Q = Result[float, int]
+      R = Result[void, int]
+      S = Result[float, ref IOError]
+
+    let
+      a = Q.ok 5.3
+      b = ok R
+      c = Q.err 5
+      d = R.err 3
+      e = S.ok 5.3
+      f = S.err: IOError.newException "uh-oh"
+
+    proc `$`(s: S): string =
+      case s.isOk
+      of true:  $s.get
+      of false: "BIO:" & $s.error.name & "/" & s.error.msg
+
+    check get(a) == 5.3
+    check get(e) == 5.3
+    get(b)
+    check c.error == 5
+    check d.error == 3
+    check f.error is ref IOError
+    check $a == "Ok(5.3)"
+    check $b == "Ok()"
+    check $e == "5.3"
+    check $f == "BIO:IOError/uh-oh"
+    check unsafeGet(a) == 5.3
+    check unsafeGet(e) == 5.3
+    check get(c, 3.2) == 3.2
+    check get(f, 3.2) == 3.2
+    expect IOError:
+      discard get f

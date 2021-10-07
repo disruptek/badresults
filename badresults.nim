@@ -1,5 +1,3 @@
-import std/macros
-
 type
   ResultError*[E] = ref object of ValueError
     error: E
@@ -15,30 +13,51 @@ type
     of true:
       v: T
 
+proc error*[T, E](self: Result[T, E]): E {.inline.} =
+  ## Retrieve the error from a Result; raises ResultError
+  ## if the Result is not in error.
+  if self.isOk:
+    raise ResultError[void](msg: "Result does not contain an error")
+  else:
+    result = self.e
+
+proc unsafeGet*[T, E](self: var Result[T, E]): var T {.inline.} =
+  ## Fetch value of result if set, undefined behavior if unset
+  ## See also: Option.unsafeGet
+  assert not isErr(self)
+  self.v
+
+proc unsafeGet*[T, E](self: Result[T, E]): T {.inline.} =
+  ## Fetch value of result if set, undefined behavior if unset
+  ## See also: Option.unsafeGet
+  assert not isErr(self)
+  self.v
+
+proc unsafeGet*[E](self: Result[void, E]) {.inline.} =
+  ## Raise an exception if Result is an error.
+  ## See also: Option.unsafeGet
+  assert not self.isErr
+
 func newResultError[E](e: E; s: string): ResultError[E] {.inline, nimcall.} =
   ## capturing ResultError...
   ResultError[E](error: e, msg: s)
 
-macro toException*[E](err: E): ResultError[E] =
-  err.expectKind nnkCheckedFieldExpr
-  # err is `self.e`, a checked field expr
-  let e = err[0]              # unwrap checked-field to get dot expr
-  let re = bindSym"newResultError"
-  quote:
-    when compiles($`e`):
-      `re`(`e`, "Result isErr: " & $`e`)
-    else:
-      `re`(`e`, "Result isErr; no `$` in scope.")
+template toException*[E](err: E): ResultError[E] =
+  mixin `$`
+  when compiles($err):
+    newResultError(err, "Result isErr: " & $err)
+  else:
+    newResultError(err, "Result isErr; no `$` in scope.")
 
-macro raiseResultError[T, E](self: Result[T, E]): untyped =
-  quote:
-    when `E` is ref Exception:
-      if `self`.e.isNil: # for example Result.default()!
-        raise ResultError[void](msg: "Result isErr; no exception.")
-      else:
-        raise `self`.e
+template raiseResultError[T, E](self: Result[T, E]) =
+  mixin toException
+  when E is ref Exception:
+    if self.error.isNil: # for example Result.default()!
+      raise ResultError[void](msg: "Result isErr; no exception.")
     else:
-      raise `self`.e.toException
+      raise self.error
+  else:
+    raise self.error.toException
 
 proc ok*[E](R: typedesc[Result[void, E]]): Result[void, E] =
   ## Return a result as success.
@@ -79,63 +98,33 @@ func `==`*(a, b: Result): bool {.inline.} =
   else:
     false
 
-macro get*[T: not void, E](self: Result[T, E]): T =
+template get*[T: not void, E](self: Result[T, E]): untyped =
   ## Fetch value of result if set, or raise error as an Exception
   ## See also: Option.get
-  quote:
-    if `self`.isErr:
-      raiseResultError `self`
-    else:
-      `self`.v
+  if self.isErr:
+    raiseResultError self
+  unsafeGet self
 
-macro get*[T, E](self: Result[T, E]; otherwise: T): T =
+template get*[T, E](self: Result[T, E]; otherwise: T): untyped =
   ## Fetch value of result if set, or raise error as an Exception
   ## See also: Option.get
-  quote:
-    if `self`.isErr:
-      `otherwise`
-    else:
-      `self`.v
+  if self.isErr:
+    otherwise
+  else:
+    unsafeGet self
 
-macro get*[T, E](self: var Result[T, E]): untyped =
+template get*[T, E](self: var Result[T, E]): untyped =
   ## Fetch mutable value of result if set, or raise error as an Exception
   ## See also: Option.get
-  quote:
-    var r: typeOf(`self`.v)
-    if `self`.isErr:
-      raiseResultError `self`
-    else:
-      r = `self`.v
-    r
+  if self.isErr:
+    raiseResultError self
+  unsafeGet self
 
-macro get*[E](self: Result[void, E]) =
+template get*[E](self: Result[void, E]) =
   ## Raise error as an Exception if `self.isErr`.
   ## See also: Option.get
-  quote:
-    if `self`.isErr:
-      raiseResultError `self`
-
-func error*[T, E](self: Result[T, E]): E =
-  if self.isOk:
-    raise ResultError[void](msg: "Result does not contain an error")
-  else:
-    result = self.e
-
-template valueOr*[T, E](self: Result[T, E], def: T): T =
-  ## Fetch value of result if set, or supplied default
-  ## default will not be evaluated iff value is set
-  self.get(def)
-
-template unsafeGet*[T, E](self: Result[T, E]): T =
-  ## Fetch value of result if set, undefined behavior if unset
-  ## See also: Option.unsafeGet
-  assert not isErr(self)
-  self.v
-
-template unsafeGet*[E](self: Result[void, E]) =
-  ## Fetch value of result if set, undefined behavior if unset
-  ## See also: Option.unsafeGet
-  assert not self.isErr
+  if self.isErr:
+    raiseResultError self
 
 proc `$`*[T: not void; E](self: Result[T, E]): string =
   ## Returns string representation of `self`
@@ -147,8 +136,13 @@ func `$`*[E](self: Result[void, E]): string =
   if self.isOk: "Ok()"
   else: "Err(" & $self.e & ")"
 
-template value*[T, E](self: Result[T, E]): T = self.get()
-template value*[T, E](self: var Result[T, E]): T = self.get()
+template value*[T, E](self: Result[T, E]): T = get self
+template value*[T, E](self: var Result[T, E]): T = get self
 
-template value*[E](self: Result[void, E]) = self.get()
-template value*[E](self: var Result[void, E]) = self.get()
+template value*[E](self: Result[void, E]) = get self
+template value*[E](self: var Result[void, E]) = get self
+
+template valueOr*[T, E](self: Result[T, E], def: T): T =
+  ## Fetch value of result if set, or supplied default
+  ## default will not be evaluated iff value is set
+  self.get(def)
