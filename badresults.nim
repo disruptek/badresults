@@ -13,30 +13,56 @@ type
     of true:
       v: T
 
-proc error*[T, E](self: Result[T, E]): E {.inline.} =
-  ## Retrieve the error from a Result; raises ResultError
-  ## if the Result is not in error.
-  if self.isOk:
-    raise ResultError[void](msg: "Result does not contain an error")
-  else:
-    result = self.e
+when defined(windows) and not (defined(gcArc) or defined(gcOrc)):
+  proc error*[T, E](self: Result[T, E]): E =
+    ## Retrieve the error from a Result; raises ResultError
+    ## if the Result is not in error.
+    if self.isOk:
+      raise ResultError[void](msg: "Result does not contain an error")
+    else:
+      result = self.e
 
-proc unsafeGet*[T, E](self: var Result[T, E]): var T {.inline.} =
-  ## Fetch value of result if set, undefined behavior if unset
-  ## See also: Option.unsafeGet
-  assert not isErr(self)
-  result = self.v
+  proc unsafeGet*[T, E](self: var Result[T, E]): var T =
+    ## Fetch value of result if set, undefined behavior if unset
+    ## See also: Option.unsafeGet
+    assert not isErr(self)
+    result = self.v
 
-proc unsafeGet*[T, E](self: Result[T, E]): T {.inline.} =
-  ## Fetch value of result if set, undefined behavior if unset
-  ## See also: Option.unsafeGet
-  assert not isErr(self)
-  result = self.v
+  proc unsafeGet*[T, E](self: Result[T, E]): T =
+    ## Fetch value of result if set, undefined behavior if unset
+    ## See also: Option.unsafeGet
+    assert not isErr(self)
+    result = self.v
 
-proc unsafeGet*[E](self: Result[void, E]) {.inline.} =
-  ## Raise an exception if Result is an error.
-  ## See also: Option.unsafeGet
-  assert not self.isErr
+  proc unsafeGet*[E](self: Result[void, E]) =
+    ## Raise an exception if Result is an error.
+    ## See also: Option.unsafeGet
+    assert not self.isErr
+else:
+  proc error*[T, E](self: Result[T, E]): E {.inline.} =
+    ## Retrieve the error from a Result; raises ResultError
+    ## if the Result is not in error.
+    if self.isOk:
+      raise ResultError[void](msg: "Result does not contain an error")
+    else:
+      result = self.e
+
+  proc unsafeGet*[T, E](self: var Result[T, E]): var T {.inline.} =
+    ## Fetch value of result if set, undefined behavior if unset
+    ## See also: Option.unsafeGet
+    assert not isErr(self)
+    result = self.v
+
+  proc unsafeGet*[T, E](self: Result[T, E]): T {.inline.} =
+    ## Fetch value of result if set, undefined behavior if unset
+    ## See also: Option.unsafeGet
+    assert not isErr(self)
+    result = self.v
+
+  proc unsafeGet*[E](self: Result[void, E]) {.inline.} =
+    ## Raise an exception if Result is an error.
+    ## See also: Option.unsafeGet
+    assert not self.isErr
 
 func newResultError[E](e: E; s: string): ResultError[E] {.inline, nimcall.} =
   ## capturing ResultError...
