@@ -3,7 +3,6 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/disruptek/badresults?style=flat)](https://github.com/disruptek/badresults/releases/latest)
 ![Minimum supported Nim version](https://img.shields.io/badge/nim-1.0.11%2B-informational?style=flat&logo=nim)
 [![License](https://img.shields.io/github/license/disruptek/badresults?style=flat)](#license)
-[![buy me a coffee](https://img.shields.io/badge/donate-buy%20me%20a%20coffee-orange.svg)](https://www.buymeacoffee.com/disruptek)
 
 This is _mostly_ a copy of [the Status nim-result
 package](https://github.com/arnetheduck/nim-result) that differs in that you
@@ -15,6 +14,8 @@ simpler and prevent C-codegen issues experienced with `nim-result`.
 
 Also, it supports `toException` and `$` overrides for error types which are
 implemented in nested scopes.
+
+Also, it might not work in Windows because I have no way to test it there.
 
 If you care more for performance and features, use `nim-result` or ask nicely
 and maybe we add a symbol or two back in.  I personally consider compilation
