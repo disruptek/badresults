@@ -13,6 +13,9 @@ type
     of true:
       v: T
 
+proc isOk*(self: Result): bool = self.o
+proc isErr*(self: Result): bool = not self.o
+
 # windows just can't handle .inline. on earlier nims and gc:(refc|m&s)
 when (NimMajor, NimMinor) < (1, 5) and defined(windows) and not (defined(gcArc) or defined(gcOrc)):
   proc error*[T, E](self: Result[T, E]): E =
@@ -71,6 +74,7 @@ func newResultError[E](e: E; s: string): ResultError[E] {.inline, nimcall.} =
 
 template toException*[E](err: E): ResultError[E] =
   mixin `$`
+  mixin newResultError
   when compiles($err):
     newResultError(err, "Result isErr: " & $err)
   else:
@@ -78,6 +82,7 @@ template toException*[E](err: E): ResultError[E] =
 
 template raiseResultError[T, E](self: Result[T, E]) =
   mixin toException
+  mixin error
   when E is ref Exception:
     if self.error.isNil: # for example Result.default()!
       raise ResultError[void](msg: "Result isErr; no exception.")
@@ -115,9 +120,6 @@ proc err*[T, E](self: var Result[T, E]; e: E) =
   ## Example: `result.err("uh-oh")`
   self = err[T, E](typeOf(self), e)
 
-proc isOk*(self: Result): bool = self.o
-proc isErr*(self: Result): bool = not self.o
-
 func `==`*(a, b: Result): bool {.inline.} =
   if a.isOk == b.isOk:
     if a.isOk: a.v == b.v
@@ -128,6 +130,8 @@ func `==`*(a, b: Result): bool {.inline.} =
 template get*[T: not void, E](self: Result[T, E]): untyped =
   ## Fetch value of result if set, or raise error as an Exception
   ## See also: Option.get
+  mixin isErr
+  mixin unsafeGet
   if self.isErr:
     raiseResultError self
   unsafeGet self
@@ -135,6 +139,8 @@ template get*[T: not void, E](self: Result[T, E]): untyped =
 template get*[T, E](self: Result[T, E]; otherwise: T): untyped =
   ## Fetch value of result if set, or raise error as an Exception
   ## See also: Option.get
+  mixin isErr
+  mixin unsafeGet
   if self.isErr:
     otherwise
   else:
@@ -143,6 +149,8 @@ template get*[T, E](self: Result[T, E]; otherwise: T): untyped =
 template get*[T, E](self: var Result[T, E]): untyped =
   ## Fetch mutable value of result if set, or raise error as an Exception
   ## See also: Option.get
+  mixin isErr
+  mixin unsafeGet
   if self.isErr:
     raiseResultError self
   unsafeGet self
@@ -150,6 +158,8 @@ template get*[T, E](self: var Result[T, E]): untyped =
 template get*[E](self: Result[void, E]) =
   ## Raise error as an Exception if `self.isErr`.
   ## See also: Option.get
+  mixin isErr
+  mixin unsafeGet
   if self.isErr:
     raiseResultError self
 
