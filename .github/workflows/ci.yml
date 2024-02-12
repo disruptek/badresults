@@ -30,14 +30,14 @@ jobs:
       fail-fast: false
       matrix:
         os: ['macos-latest', 'ubuntu-latest']
-        nim: ['devel', 'version-1-0', 'version-1-2', 'version-1-4']
+        nim: ['devel', 'version-1-0', 'version-1-2', 'version-1-4', 'version-1-6', 'version-2-0']
     name: '${{ matrix.os }} (${{ matrix.nim }})'
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          path: ci
+          path: project
 
       - name: Setup Nim
         uses: alaviss/setup-nim@0.1.1
@@ -45,18 +45,24 @@ jobs:
           path: nim
           version: ${{ matrix.nim }}
 
-      - name: Run tests
+      - name: Dependencies
         shell: bash
         run: |
-          cd ci
+          cd project
           nimble --accept develop
-          nimble test
+          nimble --accept install "https://github.com/disruptek/balls"
+
+      - name: Tests
+        shell: bash
+        run: |
+          cd project
+          balls --path="."
 
       - name: Build docs
         if: ${{ matrix.docs }} == 'true'
         shell: bash
         run: |
-          cd ci
+          cd project
           branch=${{ github.ref }}
           branch=${branch##*/}
           nimble doc --project --path="." --outdir:docs \
@@ -73,6 +79,6 @@ jobs:
           matrix.os == 'ubuntu-latest' && matrix.nim == 'devel'
         uses: crazy-max/ghaction-github-pages@v1
         with:
-          build_dir: ci/docs
+          build_dir: project/docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
