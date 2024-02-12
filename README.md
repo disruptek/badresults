@@ -1,10 +1,12 @@
 # badresults
 [![Test Matrix](https://github.com/disruptek/badresults/workflows/CI/badge.svg)](https://github.com/disruptek/badresults/actions?query=workflow%3ACI)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/disruptek/badresults?style=flat)](https://github.com/disruptek/badresults/releases/latest)
-![Minimum supported Nim version](https://img.shields.io/badge/nim-1.0.11%2B-informational?style=flat&logo=nim)
+![Minimum supported Nim version](https://img.shields.io/badge/nim-2.0.0%2B-informational?style=flat&logo=nim)
 [![License](https://img.shields.io/github/license/disruptek/badresults?style=flat)](#license)
 
-This is _mostly_ a copy of [the Status nim-result
+_see 2.1.x releases if you need support for an earlier Nim compiler_
+
+This is _mostly_ a copy of an early version of [the Status nim-result
 package](https://github.com/arnetheduck/nim-result) that differs in that you
 do not need to provide a side-effect-free (`func`) implementation of `$` for
 all types used in your `Result`.
