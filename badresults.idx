@@ -1,0 +1,34 @@
+nimTitle	badresults	badresults.html	module badresults		0
+nim	ResultError	badresults.html#ResultError	type ResultError		2
+nim	Result	badresults.html#Result	object Result		5
+nim	isOk	badresults.html#isOk,Result	proc isOk(self: Result): bool		16
+nim	isErr	badresults.html#isErr,Result	proc isErr(self: Result): bool		17
+nim	error	badresults.html#error,Result[T,E]	proc error[T, E](self: Result[T, E]): E		46
+nim	unsafeGet	badresults.html#unsafeGet,Result[T,E]	proc unsafeGet[T, E](self: var Result[T, E]): var T		54
+nim	unsafeGet	badresults.html#unsafeGet,Result[T,E]_2	proc unsafeGet[T, E](self: Result[T, E]): T		60
+nim	unsafeGet	badresults.html#unsafeGet,Result[void,E]	proc unsafeGet[E](self: Result[void, E])		66
+nim	toException	badresults.html#toException.t,E	template toException[E](err: E): ResultError[E]		75
+nim	ok	badresults.html#ok,typedesc[Result[void,E]]	proc ok[E](R: typedesc[Result[void, E]]): Result[void, E]		94
+nim	ok	badresults.html#ok,Result[void,E]	proc ok[E](self: var Result[void, E])		98
+nim	ok	badresults.html#ok,typedesc[Result[T,E]],T	proc ok[T, E](R: typedesc[Result[T, E]]; v: T): Result[T, E]		103
+nim	ok	badresults.html#ok,Result[T,E],T	proc ok[T, E](self: var Result[T, E]; v: T)		108
+nim	err	badresults.html#err,typedesc[Result[T,E]],E	proc err[T, E](R: typedesc[Result[T, E]]; e: E): Result[T, E]		113
+nim	err	badresults.html#err,Result[T,E],E	proc err[T, E](self: var Result[T, E]; e: E)		118
+nim	`==`	badresults.html#==,Result,Result	proc `==`(a, b: Result): bool		123
+nim	get	badresults.html#get.t,Result[T: not void,E]	template get[T: not void; E](self: Result[T, E]): untyped		130
+nim	get	badresults.html#get.t,Result[T,E],T	template get[T, E](self: Result[T, E]; otherwise: T): untyped		139
+nim	get	badresults.html#get.t,Result[T,E]	template get[T, E](self: var Result[T, E]): untyped		149
+nim	get	badresults.html#get.t,Result[void,E]	template get[E](self: Result[void, E])		158
+nim	`$`	badresults.html#$,Result[T: not void,E]	proc `$`[T: not void; E](self: Result[T, E]): string		166
+nim	`$`	badresults.html#$,Result[void,E]	proc `$`[E](self: Result[void, E]): string		171
+nim	value	badresults.html#value.t,Result[T,E]	template value[T, E](self: Result[T, E]): T		176
+nim	value	badresults.html#value.t,Result[T,E]_2	template value[T, E](self: var Result[T, E]): T		177
+nim	value	badresults.html#value.t,Result[void,E]	template value[E](self: Result[void, E])		179
+nim	value	badresults.html#value.t,Result[void,E]_2	template value[E](self: var Result[void, E])		180
+nim	valueOr	badresults.html#valueOr.t,Result[T,E],T	template valueOr[T, E](self: Result[T, E]; def: T): T		182
+nimgrp	$	badresults.html#$-procs-all	proc		166
+nimgrp	unsafeget	badresults.html#unsafeGet-procs-all	proc		54
+nimgrp	err	badresults.html#err-procs-all	proc		113
+nimgrp	ok	badresults.html#ok-procs-all	proc		94
+nimgrp	get	badresults.html#get-templates-all	template		130
+nimgrp	value	badresults.html#value-templates-all	template		176
